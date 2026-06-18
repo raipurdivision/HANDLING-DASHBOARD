@@ -1,0 +1,1213 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RRB ALP Dashboard — South East Central Railway</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #b1d5e6 0%, #87ceeb 100%);
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgb(138, 201, 241);
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+      color: #fff;
+      border-bottom: 4px solid #FFD700;
+      padding: 14px 20px;
+    }
+    .header-inner { display: flex; align-items: center; gap: 14px; }
+    .logo-circle {
+      width: 60px; height: 60px; border-radius: 50%;
+      border: 3px solid #FFD700; background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; color: #FFD700; text-align: center;
+      padding: 6px; font-weight: bold; flex-shrink: 0;
+    }
+    .header-text { text-align: center; flex: 1; }
+    .header-text .title { font-size: 1.4em; font-weight: bold; letter-spacing: 1px; }
+    .header-text .sub { font-size: 0.82em; color: #FFD700; font-weight: bold; letter-spacing: 1px; margin-top: 3px; text-transform: uppercase; }
+    .header-text .sub2 { font-size: 0.75em; color: #FFD700; opacity: .85; letter-spacing: .5px; }
+
+    /* ── Dashboard Body ── */
+    .dash-body { padding: 20px; background: #e4e7e7; }
+
+    /* ── Stats Cards ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.1);
+      border-left: 4px solid #1a237e;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-card.gold { border-left-color: #FFD700; }
+    .stat-card.green { border-left-color: #27ae60; }
+    .stat-card.red { border-left-color: #e74c3c; }
+    .stat-label { font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: .5px; }
+    .stat-value { font-size: 2em; font-weight: bold; color: #1a237e; line-height: 1; }
+    .stat-card.gold .stat-value { color: #b8860b; }
+    .stat-card.green .stat-value { color: #27ae60; }
+    .stat-card.red .stat-value { color: #e74c3c; }
+
+    /* ── Filter Section ── */
+    .filter-section {
+      background: rgb(212,220,218);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.1);
+    }
+    .filter-title {
+      font-size: 0.95em; font-weight: bold;
+      background: linear-gradient(135deg, #1a237e, #3949ab);
+      color: #fff; padding: 7px 14px; border-radius: 6px;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 16px; text-align: center;
+    }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 14px;
+      align-items: end;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    .filter-group label {
+      font-size: 11px; font-weight: bold; color: #1a237e;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .filter-group select {
+      width: 100%; padding: 9px 12px;
+      border: 2px solid #b3d9ff; border-radius: 6px;
+      font-size: 13px; font-weight: bold; background: #fff;
+      color: #1a237e; transition: border-color .3s, box-shadow .3s;
+      cursor: pointer;
+    }
+    .filter-group select:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 8px rgba(74,144,226,.3); }
+
+    .btn { padding: 9px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: all .3s; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-blue { background: linear-gradient(135deg, #1a237e, #3949ab); color: #fff; }
+    .btn-blue:hover { background: linear-gradient(135deg, #283593, #1a237e); transform: translateY(-1px); }
+    .btn-green { background: linear-gradient(135deg, #27ae60, #229954); color: #fff; }
+    .btn-green:hover { background: linear-gradient(135deg, #229954, #1e8449); transform: translateY(-1px); }
+    .btn-red { background: linear-gradient(135deg, #c0392b, #e74c3c); color: #fff; }
+    .btn-red:hover { background: linear-gradient(135deg, #a93226, #c0392b); transform: translateY(-1px); }
+    .btn-sm { padding: 5px 12px; font-size: 11px; }
+
+    /* ── Results Panel ── */
+    .results-panel {
+      background: rgb(212,220,218);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.1);
+    }
+    .results-title {
+      font-size: 0.95em; font-weight: bold;
+      background: linear-gradient(135deg, #1a237e, #3949ab);
+      color: #fff; padding: 7px 14px; border-radius: 6px;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .results-title span { font-size: 11px; opacity: .85; font-weight: normal; letter-spacing: .5px; }
+
+    /* ── Summary View ── */
+    .summary-cli-block { margin-bottom: 26px; }
+    .summary-cli-block:last-child { margin-bottom: 0; }
+    .summary-cli-block .results-title { margin-bottom: 10px; }
+
+    /* ── Trainee Info Card ── */
+    .trainee-info {
+      background: linear-gradient(135deg, #f0f8ff, #e8f4fd);
+      border: 2px solid #b3d9ff;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .info-item { display: flex; flex-direction: column; gap: 3px; }
+    .info-item .lbl { font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: .5px; }
+    .info-item .val { font-size: 13px; font-weight: bold; color: #1a237e; }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
+    thead tr { background: linear-gradient(135deg, #1a237e, #3949ab); }
+    thead th { color: #FFD700; font-weight: bold; padding: 10px 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid #e0eaf5; transition: background .2s; }
+    tbody tr:hover { background: #f0f8ff; }
+    tbody tr:nth-child(even) { background: #f8fbff; }
+    tbody tr:nth-child(even):hover { background: #eaf4fd; }
+    tbody td { padding: 9px 10px; color: #1a237e; vertical-align: top; }
+    .badge {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 12px; font-size: 10px; font-weight: bold;
+      background: #e3f2fd; color: #1565c0;
+    }
+
+    /* ── CLI Trainee Grid ── */
+    .trainee-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .trainee-card {
+      background: #fff;
+      border: 2px solid #b3d9ff;
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .trainee-card:hover { border-color: #1a237e; box-shadow: 0 4px 15px rgba(26,35,126,.15); transform: translateY(-2px); }
+    .trainee-card .tc-name { font-size: 13px; font-weight: bold; color: #1a237e; margin-bottom: 6px; }
+    .trainee-card .tc-detail { font-size: 11px; color: #555; margin-bottom: 2px; }
+    .trainee-card .tc-count { font-size: 10px; color: #27ae60; font-weight: bold; margin-top: 8px; }
+
+    /* ── Empty / Loading ── */
+    .empty-state {
+      text-align: center; padding: 48px 24px; color: #888;
+    }
+    .empty-state .icon { font-size: 3em; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    .loading {
+      text-align: center; padding: 32px; color: #1a237e; font-weight: bold;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: bold;
+      color: #fff; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,.3);
+      animation: fadeIn .3s ease;
+    }
+    #toast.success { background: #27ae60; }
+    #toast.error { background: #e74c3c; }
+    #toast.info { background: #1a237e; }
+    @keyframes fadeIn { from { opacity: 0; bottom: 15px; } to { opacity: 1; bottom: 30px; } }
+
+    .action-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+
+    /* ── Tabs ── */
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab {
+      padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: bold;
+      cursor: pointer; border: 2px solid #b3d9ff; background: #fff; color: #1a237e;
+      transition: all .2s; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .tab.active { background: linear-gradient(135deg, #1a237e, #3949ab); color: #FFD700; border-color: #1a237e; }
+    .tab:hover:not(.active) { border-color: #1a237e; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .filter-grid { grid-template-columns: 1fr; }
+      .trainee-info { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo-circle">SECR<br>RPR<br>DIV</div>
+      <div class="header-text">
+        <div class="title">📊 HANDLING DATA DASHBOARD</div>
+        <div class="sub">South East Central Railway</div>
+        <div class="sub2">Raipur Division — RRB ALP Monitoring</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- Stats Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Records</div>
+        <div class="stat-value" id="statTotal">—</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-label">Total CLIs</div>
+        <div class="stat-value" id="statCLIs">—</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Total Trainees</div>
+        <div class="stat-value" id="statTrainees">—</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Total KMs</div>
+        <div class="stat-value" id="statKMs">—</div>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="filter-title">🔍 Filter Dashboard</div>
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label>CLI Name</label>
+          <select id="filterCLI" onchange="onCLIChange()">
+            <option value="">— All CLIs —</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Name of Trainee</label>
+          <select id="filterTrainee" onchange="onTraineeChange()">
+            <option value="">— All Trainees —</option>
+          </select>
+        </div>
+        <button class="btn btn-blue" onclick="clearFilters()">✕ Clear</button>
+        <button class="btn btn-green" onclick="renderSummaryView()">📊 Generate Summary</button>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="results-panel">
+      <div class="results-title">
+        <span id="resultsLabel">📋 All Records</span>
+        <span id="resultsCount"></span>
+      </div>
+
+      <!-- Tab bar (shown when CLI selected) -->
+      <div class="tab-bar" id="tabBar" style="display:none;">
+        <div class="tab active" onclick="switchTab('trainees')" id="tab-trainees">Assigned Trainees</div>
+        <div class="tab" onclick="switchTab('entries')" id="tab-entries">All Entries</div>
+      </div>
+
+      <div id="resultsContent">
+        <div class="loading" id="loadingMsg">⏳ Loading data from Google Sheet…</div>
+      </div>
+
+      <div class="action-row" id="pdfRow" style="display:none;">
+        <button class="btn btn-red" onclick="generatePDF()">⬇ Generate PDF</button>
+      </div>
+
+      <div class="action-row" id="summaryPdfRow" style="display:none;">
+        <button class="btn btn-red" onclick="generateSummaryPDF()">⬇ Generate Summary PDF</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  CONFIG — same sheet URLs as the form
+// ════════════════════════════════════════════════════════
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbygRjVKy8QjUbre-Np0oAETFq9y6FNqawYZbiJ6z5rSLu_V8ytWevvp_xnK25Ya7L6l/exec';
+const SUBMIT_SHEET_ID  = '1itfeMUmvvrIKt5F6lSsTsIi6os42DeO7Plnligiqfg4';
+const TRAINEE_SHEET_ID = '1Yn450uce02hgfbXJmRzd9aBY6bBEgaginXOctu--izg';
+
+// NEW: Apps Script web app endpoint that serves the SUBMIT sheet as JSON.
+// This is the primary read path now (faster + no CORS-proxy dependency).
+// Paste the matching doGet() from Code.gs into the Apps Script project
+// deployed at this URL — see the accompanying Code.gs file.
+const APP_URL = 'https://script.google.com/macros/s/AKfycbzBiQy6NPp81IlbtlpCebIgKhdoGoy34BEja-kYssyOM400py4VuMRC8no4vH3lUsXFlA/exec';
+
+const SUBMIT_CSV  = `https://docs.google.com/spreadsheets/d/${SUBMIT_SHEET_ID}/export?format=csv&gid=0`;
+const TRAINEE_CSV = `https://docs.google.com/spreadsheets/d/${TRAINEE_SHEET_ID}/export?format=csv&gid=0`;
+
+const CORS = [
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+];
+
+// ════════════════════════════════════════════════════════
+//  DATA STORE
+// ════════════════════════════════════════════════════════
+// Each record (row from submit sheet):
+// { timestamp, traineeName, designation, hq, hrms, nominatedCLI,
+//   entryNo, date, trainNo, locoNo, fromStation, depTime,
+//   toStation, arrTime, footplateKm, lpAlpName, itemsDiscussed, ccSmName }
+let allRecords = [];
+let traineeProfiles = {}; // name -> { designation, hq, hrms }
+let currentTab = 'trainees';
+
+// ════════════════════════════════════════════════════════
+//  CSV PARSER
+// ════════════════════════════════════════════════════════
+function parseCSV(text) {
+  const rows = [];
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const row = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    row.push(cur.trim());
+    rows.push(row);
+  }
+  return rows;
+}
+
+// ════════════════════════════════════════════════════════
+//  FETCH WITH FALLBACKS
+// ════════════════════════════════════════════════════════
+async function fetchCSV(url) {
+  // Try direct
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (r.ok) return await r.text();
+  } catch(e) {}
+  // Try CORS proxies
+  for (const proxy of CORS) {
+    try {
+      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(10000) });
+      if (r.ok) return await r.text();
+    } catch(e) {}
+  }
+  throw new Error('All fetch strategies failed');
+}
+
+// Fetch the submission sheet via the Apps Script web app as JSON.
+// Returns a 2D array of rows (row 0 = headers), same shape parseCSV()
+// would produce, so it can drop straight into the existing logic below.
+async function fetchRowsFromAppScript() {
+  const r = await fetch(`${APP_URL}?action=getData&sheet=submit`, { signal: AbortSignal.timeout(10000) });
+  if (!r.ok) throw new Error('Apps Script endpoint returned ' + r.status);
+  const json = await r.json();
+  if (!json.success) throw new Error(json.error || 'Apps Script returned an error');
+  return json.rows;
+}
+
+// ════════════════════════════════════════════════════════
+//  LOAD DATA
+// ════════════════════════════════════════════════════════
+async function loadData() {
+  document.getElementById('loadingMsg').style.display = 'block';
+  document.getElementById('loadingMsg').textContent = '⏳ Loading submission data…';
+
+  try {
+    // Load submission sheet — try the Apps Script JSON endpoint first,
+    // fall back to the old CSV+proxy method if that fails for any reason.
+    let rows;
+    try {
+      rows = await fetchRowsFromAppScript();
+    } catch (appScriptErr) {
+      console.warn('Apps Script fetch failed, falling back to CSV:', appScriptErr);
+      const csv = await fetchCSV(SUBMIT_CSV);
+      rows = parseCSV(csv);
+    }
+    if (rows.length < 2) throw new Error('No submission data found');
+
+    const h = rows[0].map(x => x.trim().toUpperCase());
+    // Column order per Apps Script:
+    // A:Timestamp B:TraineeName C:Designation D:HQ E:HRMSID F:NominatedCLI
+    // G:EntryNo H:Date I:TrainNo J:LocoNo K:From L:DepTime
+    // M:To N:ArrTime O:FootplateKM P:LPALPName Q:ItemsDiscussed R:CCSmName
+
+    allRecords = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[1] && !r[0]) continue; // skip empty
+      allRecords.push({
+        timestamp:      r[0]  || '',
+        traineeName:    (r[1]  || '').trim().toUpperCase(),
+        designation:    r[2]  || '',
+        hq:             r[3]  || '',
+        hrms:           r[4]  || '',
+        nominatedCLI:   (r[5]  || '').trim(),
+        entryNo:        r[6]  || '',
+        date:           r[7]  || '',
+        trainNo:        r[8]  || '',
+        locoNo:         r[9]  || '',
+        fromStation:    r[10] || '',
+        depTime:        r[11] || '',
+        toStation:      r[12] || '',
+        arrTime:        r[13] || '',
+        footplateKm:    r[14] || '',
+        lpAlpName:      r[15] || '',
+        itemsDiscussed: r[16] || '',
+        ccSmName:       r[17] || '',
+      });
+    }
+
+    // Also load trainee profiles (for HQ, designation, hrms)
+    try {
+      const tcsv = await fetchCSV(TRAINEE_CSV);
+      const trows = parseCSV(tcsv);
+      if (trows.length > 1) {
+        const th = trows[0].map(x => x.trim().toUpperCase());
+        const ni = th.findIndex(h => h.includes('NAME'));
+        const di = th.findIndex(h => h.includes('DESIG'));
+        const hi = th.findIndex(h => h === 'HQ' || h.includes('H.Q') || h.includes('HEAD'));
+        const ri = th.findIndex(h => h.includes('HRMS'));
+        for (let i = 1; i < trows.length; i++) {
+          const tr = trows[i];
+          const name = ni >= 0 ? tr[ni].trim().toUpperCase() : '';
+          if (!name) continue;
+          traineeProfiles[name] = {
+            designation: di >= 0 ? tr[di] : '',
+            hq:          hi >= 0 ? tr[hi] : '',
+            hrms:        ri >= 0 ? tr[ri] : '',
+          };
+        }
+      }
+    } catch(e) { /* trainee profile load failed — not critical */ }
+
+    buildUI();
+    showToast(`✅ ${allRecords.length} records loaded`, 'success');
+  } catch(err) {
+    document.getElementById('loadingMsg').textContent = '⚠️ Could not load data. Make sure the submission sheet is publicly accessible.';
+    showToast('❌ Failed to load data', 'error');
+    console.error(err);
+    // Load demo data for preview
+    loadDemoData();
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  DEMO DATA (fallback when sheet not accessible)
+// ════════════════════════════════════════════════════════
+function loadDemoData() {
+  const clis = ['A K REDDY/CLI/BIA', 'ANIL KUMAR/CLI/BIA', 'BHARAT SINGH ATBHAIYYA/CLI/R', 'MANOJ KUMAR SAO/CLI/R'];
+  const trainees = [
+    { name: 'RAMESH KUMAR', desig: 'ALP', hq: 'BIA', hrms: 'HR12345' },
+    { name: 'SURESH SINGH', desig: 'ALP', hq: 'R', hrms: 'HR23456' },
+    { name: 'AMIT VERMA', desig: 'ALP', hq: 'BYT', hrms: 'HR34567' },
+    { name: 'PRIYA SHARMA', desig: 'ALP', hq: 'BIA', hrms: 'HR45678' },
+    { name: 'VIJAY PATEL', desig: 'ALP', hq: 'DRZ', hrms: 'HR56789' },
+    { name: 'KAVITA DEWANGAN', desig: 'ALP', hq: 'R', hrms: 'HR67890' },
+  ];
+  const trains = ['18208', '12854', '08213', '12856', '18238'];
+  const locos = ['WAP4-22450', 'WAG9-31204', 'WAP7-30145', 'WAG9H-28307'];
+  const stations = ['R', 'BIA', 'BYT', 'DRZ', 'APR', 'KRBA'];
+
+  allRecords = [];
+  let id = 1;
+  trainees.forEach((t, ti) => {
+    const cli = clis[ti % clis.length];
+    const numEntries = 2 + Math.floor(Math.random() * 3);
+    for (let e = 0; e < numEntries; e++) {
+      const from = stations[Math.floor(Math.random() * stations.length)];
+      let to = stations[Math.floor(Math.random() * stations.length)];
+      while (to === from) to = stations[Math.floor(Math.random() * stations.length)];
+      allRecords.push({
+        timestamp: `0${ti+1}/06/2025, 10:00:00`,
+        traineeName: t.name,
+        designation: t.desig,
+        hq: t.hq,
+        hrms: t.hrms,
+        nominatedCLI: cli,
+        entryNo: e + 1,
+        date: `2025-06-${String(e + 1).padStart(2,'0')}`,
+        trainNo: trains[Math.floor(Math.random() * trains.length)],
+        locoNo: locos[Math.floor(Math.random() * locos.length)],
+        fromStation: from,
+        depTime: `0${8+e}:30`,
+        toStation: to,
+        arrTime: `${10+e}:45`,
+        footplateKm: String(80 + Math.floor(Math.random() * 200)),
+        lpAlpName: `LP SHARMA / ALP GUPTA`,
+        itemsDiscussed: `Loco handling, brake application, speed regulations, emergency procedures`,
+        ccSmName: `SM ${to}`,
+      });
+    }
+  });
+
+  buildUI();
+  showToast('ℹ️ Showing demo data — connect your Google Sheet for live data', 'info');
+}
+
+// ════════════════════════════════════════════════════════
+//  BUILD UI — populate dropdowns & stats
+// ════════════════════════════════════════════════════════
+function buildUI() {
+  document.getElementById('loadingMsg').style.display = 'none';
+
+  // Stats
+  const totalKm = allRecords.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+  const cliSet = new Set(allRecords.map(r => r.nominatedCLI).filter(Boolean));
+  const traineeSet = new Set(allRecords.map(r => r.traineeName).filter(Boolean));
+
+  document.getElementById('statTotal').textContent    = allRecords.length;
+  document.getElementById('statCLIs').textContent     = cliSet.size;
+  document.getElementById('statTrainees').textContent = traineeSet.size;
+  document.getElementById('statKMs').textContent      = Math.round(totalKm).toLocaleString();
+
+  // Populate CLI dropdown
+  const cliSel = document.getElementById('filterCLI');
+  cliSel.innerHTML = '<option value="">— All CLIs —</option>';
+  [...cliSet].sort().forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    cliSel.appendChild(o);
+  });
+
+  // Populate Trainee dropdown
+  const tSel = document.getElementById('filterTrainee');
+  tSel.innerHTML = '<option value="">— All Trainees —</option>';
+  [...traineeSet].sort().forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    tSel.appendChild(o);
+  });
+
+  renderDefault();
+}
+
+// ════════════════════════════════════════════════════════
+//  RENDER DEFAULT — show summary table
+// ════════════════════════════════════════════════════════
+function renderDefault() {
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('pdfRow').style.display = 'none';
+  document.getElementById('summaryPdfRow').style.display = 'none';
+  document.getElementById('resultsLabel').textContent = '📋 All Records Summary';
+  document.getElementById('resultsCount').textContent = `${allRecords.length} entries`;
+
+  // Group by trainee
+  const byTrainee = {};
+  allRecords.forEach(r => {
+    if (!byTrainee[r.traineeName]) byTrainee[r.traineeName] = { records: [], cli: r.nominatedCLI, desig: r.designation, hq: r.hq, hrms: r.hrms };
+    byTrainee[r.traineeName].records.push(r);
+  });
+
+  const rows = Object.entries(byTrainee).sort((a, b) => a[0].localeCompare(b[0]));
+
+  const html = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Trainee Name</th>
+            <th>Designation</th>
+            <th>HQ</th>
+            <th>HRMS ID</th>
+            <th>Nominated CLI</th>
+            <th>Total Entries</th>
+            <th>Total KM</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(([name, d], i) => {
+            const km = d.records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+            return `<tr style="cursor:pointer;" onclick="selectTraineeDirect('${name.replace(/'/g,"\\'")}')" title="Click to view details">
+              <td>${i+1}</td>
+              <td><strong>${name}</strong></td>
+              <td>${d.desig || '—'}</td>
+              <td>${d.hq || '—'}</td>
+              <td>${d.hrms || '—'}</td>
+              <td>${d.cli || '—'}</td>
+              <td><span class="badge">${d.records.length}</span></td>
+              <td><strong>${Math.round(km)}</strong></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('resultsContent').innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════
+//  ON CLI CHANGE
+// ════════════════════════════════════════════════════════
+function onCLIChange() {
+  const cli = document.getElementById('filterCLI').value;
+  // Reset trainee filter when CLI changes
+  document.getElementById('filterTrainee').value = '';
+
+  if (!cli) { renderDefault(); return; }
+
+  const records = allRecords.filter(r => r.nominatedCLI === cli);
+  // Update trainee dropdown to only show trainees for this CLI
+  const traineeSet = new Set(records.map(r => r.traineeName).filter(Boolean));
+  const tSel = document.getElementById('filterTrainee');
+  tSel.innerHTML = '<option value="">— All Trainees —</option>';
+  [...traineeSet].sort().forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    tSel.appendChild(o);
+  });
+
+  renderCLIView(cli, records);
+}
+
+// ════════════════════════════════════════════════════════
+//  RENDER CLI VIEW
+// ════════════════════════════════════════════════════════
+function renderCLIView(cli, records) {
+  currentTab = 'trainees';
+  document.getElementById('tabBar').style.display = 'flex';
+  document.getElementById('pdfRow').style.display = 'none';
+  document.getElementById('summaryPdfRow').style.display = 'none';
+  document.getElementById('resultsLabel').textContent = `🧑‍💼 CLI: ${cli}`;
+
+  const km = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+  const traineeSet = new Set(records.map(r => r.traineeName).filter(Boolean));
+  document.getElementById('resultsCount').textContent = `${traineeSet.size} trainees | ${records.length} entries | ${Math.round(km)} KM`;
+
+  document.getElementById('tab-trainees').classList.add('active');
+  document.getElementById('tab-entries').classList.remove('active');
+
+  // Group by trainee
+  const byTrainee = {};
+  records.forEach(r => {
+    if (!byTrainee[r.traineeName]) byTrainee[r.traineeName] = { records: [], desig: r.designation, hq: r.hq, hrms: r.hrms };
+    byTrainee[r.traineeName].records.push(r);
+  });
+
+  window._currentCLI = cli;
+  window._currentCLIRecords = records;
+  window._currentCLIByTrainee = byTrainee;
+
+  renderCLITrainees(byTrainee);
+}
+
+function renderCLITrainees(byTrainee) {
+  const cards = Object.entries(byTrainee).map(([name, d]) => {
+    const km = d.records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+    return `
+      <div class="trainee-card" onclick="selectTraineeDirect('${name.replace(/'/g,"\\'")}')" title="Click to view detailed entries">
+        <div class="tc-name">👤 ${name}</div>
+        <div class="tc-detail">📋 ${d.desig || '—'} | 📍 ${d.hq || '—'}</div>
+        <div class="tc-detail">🆔 HRMS: ${d.hrms || '—'}</div>
+        <div class="tc-count">✅ ${d.records.length} entries · ${Math.round(km)} KM</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('resultsContent').innerHTML = `
+    <div class="trainee-cards">${cards}</div>
+    <p style="font-size:11px;color:#888;text-align:center;">Click a trainee card to view their detailed entries</p>
+  `;
+}
+
+// ════════════════════════════════════════════════════════
+//  GENERATE SUMMARY — CLI-wise table of all trainees + total KM
+// ════════════════════════════════════════════════════════
+function renderSummaryView() {
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('pdfRow').style.display = 'none';
+  document.getElementById('summaryPdfRow').style.display = 'flex';
+
+  if (!allRecords.length) {
+    document.getElementById('resultsLabel').textContent = '📊 CLI-wise Summary';
+    document.getElementById('resultsCount').textContent = '';
+    document.getElementById('resultsContent').innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No records found.</p></div>';
+    return;
+  }
+
+  // Group by CLI -> trainee
+  const byCLI = {};
+  allRecords.forEach(r => {
+    const cli = r.nominatedCLI || 'UNASSIGNED';
+    if (!byCLI[cli]) byCLI[cli] = {};
+    if (!byCLI[cli][r.traineeName]) byCLI[cli][r.traineeName] = { records: [], desig: r.designation, hq: r.hq, hrms: r.hrms };
+    byCLI[cli][r.traineeName].records.push(r);
+  });
+
+  window._summaryData = byCLI;
+
+  const cliNames = Object.keys(byCLI).sort();
+  const grandKm = allRecords.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+
+  document.getElementById('resultsLabel').textContent = '📊 CLI-wise Summary';
+  document.getElementById('resultsCount').textContent = `${cliNames.length} CLIs | ${allRecords.length} entries | ${Math.round(grandKm)} KM`;
+
+  const sections = cliNames.map(cli => buildCLISummarySection(cli, byCLI[cli])).join('');
+  document.getElementById('resultsContent').innerHTML = sections;
+}
+
+function buildCLISummarySection(cli, byTrainee) {
+  const trainees = Object.entries(byTrainee).sort((a, b) => a[0].localeCompare(b[0]));
+  const totalKm = trainees.reduce((s, [, d]) => s + d.records.reduce((s2, r) => s2 + (parseFloat(r.footplateKm) || 0), 0), 0);
+  const totalEntries = trainees.reduce((s, [, d]) => s + d.records.length, 0);
+
+  const rows = trainees.map(([name, d], i) => {
+    const km = d.records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+    return `<tr style="cursor:pointer;" onclick="selectTraineeDirect('${name.replace(/'/g,"\\'")}')" title="Click to view details">
+      <td>${i + 1}</td>
+      <td><strong>${name}</strong></td>
+      <td>${d.desig || '—'}</td>
+      <td>${d.hq || '—'}</td>
+      <td>${d.hrms || '—'}</td>
+      <td><span class="badge">${d.records.length}</span></td>
+      <td><strong>${Math.round(km)}</strong></td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="summary-cli-block">
+      <div class="results-title">
+        <span>🧑‍💼 CLI: ${cli}</span>
+        <span>${trainees.length} trainees | ${totalEntries} entries | ${Math.round(totalKm)} KM</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Trainee Name</th>
+              <th>Designation</th>
+              <th>HQ</th>
+              <th>HRMS ID</th>
+              <th>Total Entries</th>
+              <th>Total KM</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr style="background:#eef3fb; border-top:2px solid #1a237e;">
+              <td colspan="6" style="text-align:right; font-weight:bold; color:#1a237e;">TOTAL KM</td>
+              <td style="font-weight:bold; color:#1a237e;">${Math.round(totalKm)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════
+//  GENERATE SUMMARY PDF
+// ════════════════════════════════════════════════════════
+function generateSummaryPDF() {
+  try {
+    const byCLI = window._summaryData;
+    if (!byCLI) { showToast('❌ Generate the summary first', 'error'); return; }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 10;
+    const tableW = pageW - margin * 2; // table + CLI heading both use this exact width
+
+    // ── Plain black/white header (no colour, compact) ──
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('SOUTH EAST CENTRAL RAILWAY — RAIPUR DIVISION', pageW / 2, 12, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('CLI-wise Trainee Summary Report', pageW / 2, 17, { align: 'center' });
+
+    const ts = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    doc.setFontSize(7);
+    doc.text('Generated: ' + ts, pageW - margin, 17, { align: 'right' });
+
+    doc.setLineWidth(0.3);
+    doc.line(margin, 20, pageW - margin, 20);
+
+    let y = 25;
+    const cliNames = Object.keys(byCLI).sort();
+    // Fixed column widths summing exactly to tableW, so the CLI heading
+    // line above always lines up with the table edges below it.
+    const colW = { 0: 10, 1: 0, 2: 45, 3: 28, 4: 40, 5: 24, 6: 30 };
+    colW[1] = tableW - (colW[0] + colW[2] + colW[3] + colW[4] + colW[5] + colW[6]); // Trainee Name takes the remainder
+
+    cliNames.forEach(cli => {
+      const trainees = Object.entries(byCLI[cli]).sort((a, b) => a[0].localeCompare(b[0]));
+      const totalKm = trainees.reduce((s, [, d]) => s + d.records.reduce((s2, r) => s2 + (parseFloat(r.footplateKm) || 0), 0), 0);
+      const totalEntries = trainees.reduce((s, [, d]) => s + d.records.length, 0);
+
+      // Avoid an orphaned heading at the bottom of a page
+      if (y > pageH - 30) { doc.addPage(); y = 14; }
+
+      // ── Plain CLI heading line, same left/right edges as the table ──
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`CLI: ${cli}`, margin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.text(`${trainees.length} Trainees   |   ${totalEntries} Entries   |   ${Math.round(totalKm)} KM`, pageW - margin, y, { align: 'right' });
+      y += 1.5;
+      doc.setLineWidth(0.15);
+      doc.line(margin, y, pageW - margin, y);
+      y += 3;
+
+      const head = [['#', 'Trainee Name', 'Designation', 'HQ', 'HRMS ID', 'Entries', 'Total KM']];
+      const body = trainees.map(([name, d], i) => {
+        const km = d.records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+        return [i + 1, name, d.desig || '', d.hq || '', d.hrms || '', d.records.length, Math.round(km)];
+      });
+      const foot = [[
+        { content: 'TOTAL KM', colSpan: 6, styles: { halign: 'right' } },
+        Math.round(totalKm)
+      ]];
+
+      doc.autoTable({
+        startY: y,
+        head, body, foot,
+        theme: 'grid',
+        tableWidth: tableW,
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 7, cellPadding: 1.2, textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.1 },
+        headStyles: { fillColor: 255, textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center', lineWidth: 0.15 },
+        footStyles: { fillColor: 255, textColor: [0, 0, 0], fontStyle: 'bold', lineWidth: 0.15 },
+        bodyStyles: { fillColor: 255 },
+        alternateRowStyles: { fillColor: 255 },
+        columnStyles: {
+          0: { cellWidth: colW[0], halign: 'center' },
+          1: { cellWidth: colW[1] },
+          2: { cellWidth: colW[2] },
+          3: { cellWidth: colW[3] },
+          4: { cellWidth: colW[4] },
+          5: { cellWidth: colW[5], halign: 'center' },
+          6: { cellWidth: colW[6], halign: 'center' },
+        },
+      });
+
+      y = doc.lastAutoTable.finalY + 6;
+    });
+
+    // ── Footer page numbers ──
+    const pages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= pages; p++) {
+      doc.setPage(p);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(90, 90, 90);
+      doc.text('South East Central Railway — Raipur Division | CLI-wise Trainee Summary Report', margin, pageH - 5);
+      doc.text(`Page ${p} of ${pages}`, pageW - margin, pageH - 5, { align: 'right' });
+    }
+
+    doc.save(`CLI_Summary_Report_${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast('✅ Summary PDF downloaded!', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('❌ Summary PDF generation failed', 'error');
+  }
+}
+
+function renderCLIEntries(records) {
+  document.getElementById('resultsContent').innerHTML = buildEntriesTable(records);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-trainees').classList.toggle('active', tab === 'trainees');
+  document.getElementById('tab-entries').classList.toggle('active', tab === 'entries');
+
+  if (tab === 'trainees') {
+    renderCLITrainees(window._currentCLIByTrainee);
+    document.getElementById('pdfRow').style.display = 'none';
+    document.getElementById('summaryPdfRow').style.display = 'none';
+  } else {
+    renderCLIEntries(window._currentCLIRecords);
+    document.getElementById('pdfRow').style.display = 'flex';
+    document.getElementById('summaryPdfRow').style.display = 'none';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  ON TRAINEE CHANGE
+// ════════════════════════════════════════════════════════
+function onTraineeChange() {
+  const trainee = document.getElementById('filterTrainee').value;
+  if (!trainee) {
+    const cli = document.getElementById('filterCLI').value;
+    if (cli) onCLIChange(); else renderDefault();
+    return;
+  }
+  renderTraineeView(trainee);
+}
+
+function selectTraineeDirect(name) {
+  document.getElementById('filterTrainee').value = name;
+  renderTraineeView(name);
+}
+
+// ════════════════════════════════════════════════════════
+//  RENDER TRAINEE VIEW
+// ════════════════════════════════════════════════════════
+function renderTraineeView(trainee) {
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('pdfRow').style.display = 'flex';
+  document.getElementById('summaryPdfRow').style.display = 'none';
+
+  const records = allRecords.filter(r => r.traineeName === trainee);
+  const profile = traineeProfiles[trainee] || (records[0] ? { designation: records[0].designation, hq: records[0].hq, hrms: records[0].hrms } : {});
+  const cli = records[0] ? records[0].nominatedCLI : '—';
+  const km = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+
+  document.getElementById('resultsLabel').textContent = `👤 ${trainee}`;
+  document.getElementById('resultsCount').textContent = `${records.length} entries | ${Math.round(km)} KM`;
+
+  window._currentTrainee = trainee;
+  window._currentTraineeRecords = records;
+
+  const infoHtml = `
+    <div class="trainee-info">
+      <div class="info-item"><div class="lbl">Name</div><div class="val">${trainee}</div></div>
+      <div class="info-item"><div class="lbl">Designation</div><div class="val">${profile.designation || '—'}</div></div>
+      <div class="info-item"><div class="lbl">HQ</div><div class="val">${profile.hq || '—'}</div></div>
+      <div class="info-item"><div class="lbl">HRMS ID</div><div class="val">${profile.hrms || '—'}</div></div>
+      <div class="info-item"><div class="lbl">Nominated CLI</div><div class="val" style="font-size:11px;">${cli}</div></div>
+    </div>
+  `;
+
+  document.getElementById('resultsContent').innerHTML = infoHtml + buildEntriesTable(records);
+}
+
+// ════════════════════════════════════════════════════════
+//  BUILD ENTRIES TABLE HTML
+// ════════════════════════════════════════════════════════
+function buildEntriesTable(records) {
+  if (!records.length) return '<div class="empty-state"><div class="icon">📭</div><p>No entries found.</p></div>';
+
+  const rows = records.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${r.date || '—'}</td>
+      <td>${r.trainNo || '—'}</td>
+      <td>${r.locoNo || '—'}</td>
+      <td>${r.fromStation || '—'}</td>
+      <td>${r.depTime || '—'}</td>
+      <td>${r.toStation || '—'}</td>
+      <td>${r.arrTime || '—'}</td>
+      <td><strong>${r.footplateKm || '—'}</strong></td>
+      <td>${r.lpAlpName || '—'}</td>
+      <td style="max-width:180px;">${r.itemsDiscussed || '—'}</td>
+      <td>${r.ccSmName || '—'}</td>
+    </tr>
+  `).join('');
+
+  const totalKm = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+  const totalKmDisplay = Number.isInteger(totalKm) ? totalKm : totalKm.toFixed(1);
+
+  return `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Train No</th>
+            <th>Loco No</th>
+            <th>From</th>
+            <th>Dep</th>
+            <th>To</th>
+            <th>Arr</th>
+            <th>KM</th>
+            <th>LP/ALP Name & Sign</th>
+            <th>Items Discussed</th>
+            <th>CC/SM Name</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr style="background:#eef3fb; border-top:2px solid #1a237e;">
+            <td colspan="8" style="text-align:right; font-weight:bold; color:#1a237e;">TOTAL KM</td>
+            <td style="font-weight:bold; color:#1a237e;">${totalKmDisplay}</td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════
+//  CLEAR FILTERS
+// ════════════════════════════════════════════════════════
+function clearFilters() {
+  document.getElementById('filterCLI').value = '';
+  document.getElementById('filterTrainee').value = '';
+  // Reset trainee dropdown to all
+  const tSel = document.getElementById('filterTrainee');
+  const traineeSet = new Set(allRecords.map(r => r.traineeName).filter(Boolean));
+  tSel.innerHTML = '<option value="">— All Trainees —</option>';
+  [...traineeSet].sort().forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    tSel.appendChild(o);
+  });
+  renderDefault();
+}
+
+// ════════════════════════════════════════════════════════
+//  GENERATE PDF
+// ════════════════════════════════════════════════════════
+function generatePDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 10;
+
+    const trainee = window._currentTrainee || 'all';
+    const records = window._currentTraineeRecords || allRecords;
+    const profile = traineeProfiles[trainee] || (records[0] ? { designation: records[0].designation, hq: records[0].hq, hrms: records[0].hrms } : {});
+    const cli = records[0] ? records[0].nominatedCLI : '';
+
+    // ── Header ──
+    doc.setFillColor(26, 35, 126);
+    doc.rect(0, 0, pageW, 22, 'F');
+    doc.setFontSize(14);
+    doc.setTextColor(255, 215, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SOUTH EAST CENTRAL RAILWAY — RAIPUR DIVISION', pageW / 2, 9, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text('RRB ALP HANDLING REPORT', pageW / 2, 16, { align: 'center' });
+
+    const ts = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    doc.setFontSize(7);
+    doc.setTextColor(255, 215, 0);
+    doc.text('Generated: ' + ts, pageW - margin, 20, { align: 'right' });
+
+    let y = 28;
+
+    // ── Trainee Details ──
+    if (trainee !== 'all') {
+      doc.setFillColor(57, 73, 171);
+      doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TRAINEE DETAILS', pageW / 2, y + 5, { align: 'center' });
+      y += 10;
+
+      const info = [
+        ['Name of Trainee', trainee],
+        ['Designation', profile.designation || ''],
+        ['HQ', profile.hq || ''],
+        ['HRMS ID', profile.hrms || ''],
+        ['Nominated CLI', cli],
+      ];
+      const colW = (pageW - margin * 2) / 3;
+      doc.setFontSize(8);
+      info.forEach(([label, val], idx) => {
+        const cx = margin + (idx % 3) * colW;
+        const cy = y + Math.floor(idx / 3) * 10;
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(26, 35, 126);
+        doc.text(label + ':', cx, cy);
+        doc.setFont('helvetica', 'normal');
+        doc.text((val || '').toUpperCase(), cx + 38, cy);
+      });
+      y += Math.ceil(info.length / 3) * 10 + 4;
+    }
+
+    // ── Entries Table ──
+    doc.setFillColor(57, 73, 171);
+    doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('HANDLING DETAILS', pageW / 2, y + 5, { align: 'center' });
+    y += 9;
+
+    const tableHead = [['#', 'Date', 'Train No', 'Loco No', 'From', 'Dep', 'To', 'Arr', 'KM', 'LP/ALP Name & Sign', 'Items Discussed', 'CC/SM']];
+    const tableBody = records.map((r, i) => [
+      i + 1, r.date, r.trainNo, r.locoNo, r.fromStation, r.depTime,
+      r.toStation, r.arrTime, r.footplateKm, r.lpAlpName, r.itemsDiscussed, r.ccSmName
+    ]);
+    const totalKmPdf = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+    const totalKmPdfDisplay = Number.isInteger(totalKmPdf) ? totalKmPdf : totalKmPdf.toFixed(1);
+    const tableFoot = [[
+      '', '', '', '', '', '', '',
+      { content: 'TOTAL KM', styles: { halign: 'right' } },
+      totalKmPdfDisplay, '', '', ''
+    ]];
+
+    doc.autoTable({
+      startY: y,
+      head: tableHead,
+      body: tableBody,
+      foot: tableFoot,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 7, cellPadding: 2, overflow: 'linebreak', textColor: [26, 35, 126] },
+      headStyles: { fillColor: [26, 35, 126], textColor: [255, 215, 0], fontStyle: 'bold', halign: 'center' },
+      footStyles: { fillColor: [224, 232, 247], textColor: [26, 35, 126], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [240, 248, 255] },
+      columnStyles: {
+        0: { cellWidth: 6, halign: 'center' },
+        1: { cellWidth: 18 },
+        2: { cellWidth: 16 },
+        3: { cellWidth: 16 },
+        4: { cellWidth: 18 },
+        5: { cellWidth: 12 },
+        6: { cellWidth: 18 },
+        7: { cellWidth: 12 },
+        8: { cellWidth: 12 },
+        9: { cellWidth: 38 },
+        10: { cellWidth: 55 },
+        11: { cellWidth: 28 },
+      },
+    });
+
+    // ── Footer ──
+    const pages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= pages; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7);
+      doc.setTextColor(120, 120, 120);
+      doc.text('South East Central Railway — Raipur Division | RRB ALP Handling Report', margin, doc.internal.pageSize.getHeight() - 5);
+      doc.text(`Page ${p} of ${pages}`, pageW - margin, doc.internal.pageSize.getHeight() - 5, { align: 'right' });
+    }
+
+    const filename = trainee !== 'all'
+      ? `ALP_Report_${trainee.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.pdf`
+      : `ALP_Report_All_${new Date().toISOString().slice(0,10)}.pdf`;
+
+    doc.save(filename);
+    showToast('✅ PDF downloaded!', 'success');
+  } catch(err) {
+    console.error(err);
+    showToast('❌ PDF generation failed', 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type;
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.display = 'none'; }, 4000);
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>
