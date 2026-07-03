@@ -1,4 +1,8 @@
 
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +16,7 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #b1d5e6 0%, #87ceeb 100%);
+      background: #f0ead9;
       min-height: 100vh;
       padding: 16px;
     }
@@ -20,7 +24,7 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      background: rgb(138, 201, 241);
+      background: #f5efe1;
       border-radius: 15px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.2);
       overflow: hidden;
@@ -28,26 +32,44 @@
 
     /* ── Header ── */
     .header {
-      background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+      background: #0f2a3a;
       color: #fff;
-      border-bottom: 4px solid #FFD700;
-      padding: 14px 20px;
+      border-top: 5px dashed #e0a030;
+      padding: 16px 22px 18px;
+      position: relative;
     }
-    .header-inner { display: flex; align-items: center; gap: 14px; }
-    .logo-circle {
-      width: 60px; height: 60px; border-radius: 50%;
-      border: 3px solid #FFD700; background: rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 8px; color: #FFD700; text-align: center;
-      padding: 6px; font-weight: bold; flex-shrink: 0;
+    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .logo-circle { display: none; }
+    .header-text { text-align: left; flex: 1; }
+    .header-text .eyebrow { font-size: 0.7em; letter-spacing: 3px; color: #9fb3bf; text-transform: uppercase; margin-bottom: 6px; }
+    .header-text .title { font-size: 2em; font-weight: bold; letter-spacing: 1px; color: #e0a030; }
+    .header-text .sub { font-size: 0.82em; color: #f0ead9; font-weight: bold; letter-spacing: 1px; margin-top: 6px; text-transform: uppercase; }
+    .header-text .sub2 { font-size: 0.75em; color: #f0ead9; opacity: .7; letter-spacing: .5px; }
+    .live-clock {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(224,160,48,0.4);
+      border-radius: 8px;
+      padding: 8px 16px;
+      flex-shrink: 0;
     }
-    .header-text { text-align: center; flex: 1; }
-    .header-text .title { font-size: 1.4em; font-weight: bold; letter-spacing: 1px; }
-    .header-text .sub { font-size: 0.82em; color: #FFD700; font-weight: bold; letter-spacing: 1px; margin-top: 3px; text-transform: uppercase; }
-    .header-text .sub2 { font-size: 0.75em; color: #FFD700; opacity: .85; letter-spacing: .5px; }
+    .live-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #4caf50;
+      box-shadow: 0 0 6px #4caf50;
+      animation: livePulse 1.6s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .35; }
+    }
+    .live-clock-text { text-align: right; }
+    .live-time { font-size: 1.15em; font-weight: bold; color: #e0a030; letter-spacing: 1px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .live-date { font-size: 0.68em; color: #f0ead9; opacity: .75; letter-spacing: .5px; text-transform: uppercase; margin-top: 2px; }
 
     /* ── Dashboard Body ── */
-    .dash-body { padding: 20px; background: #e4e7e7; }
+    .dash-body { padding: 20px; background: #f0ead9; }
 
     /* ── Stats Cards ── */
     .stats-row {
@@ -61,23 +83,23 @@
       border-radius: 10px;
       padding: 16px;
       box-shadow: 0 4px 15px rgba(0,0,0,.1);
-      border-left: 4px solid #1a237e;
+      border-left: 4px solid #0f2a3a;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
-    .stat-card.gold { border-left-color: #FFD700; }
+    .stat-card.gold { border-left-color: #e0a030; }
     .stat-card.green { border-left-color: #27ae60; }
     .stat-card.red { border-left-color: #e74c3c; }
     .stat-label { font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: .5px; }
-    .stat-value { font-size: 2em; font-weight: bold; color: #1a237e; line-height: 1; }
-    .stat-card.gold .stat-value { color: #b8860b; }
+    .stat-value { font-size: 2em; font-weight: bold; color: #0f2a3a; line-height: 1; }
+    .stat-card.gold .stat-value { color: #c47f1a; }
     .stat-card.green .stat-value { color: #27ae60; }
     .stat-card.red .stat-value { color: #e74c3c; }
 
     /* ── Filter Section ── */
     .filter-section {
-      background: rgb(212,220,218);
+      background: #faf6ec;
       border-radius: 10px;
       padding: 18px;
       margin-bottom: 20px;
@@ -85,34 +107,36 @@
     }
     .filter-title {
       font-size: 0.95em; font-weight: bold;
-      background: linear-gradient(135deg, #1a237e, #3949ab);
+      background: linear-gradient(135deg, #0f2a3a, #1c3d4d);
       color: #fff; padding: 7px 14px; border-radius: 6px;
       letter-spacing: 1px; text-transform: uppercase;
       margin-bottom: 16px; text-align: center;
     }
     .filter-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr auto auto;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto auto;
       gap: 14px;
       align-items: end;
     }
     .filter-group { display: flex; flex-direction: column; gap: 6px; }
     .filter-group label {
-      font-size: 11px; font-weight: bold; color: #1a237e;
+      font-size: 11px; font-weight: bold; color: #0f2a3a;
       text-transform: uppercase; letter-spacing: .5px;
     }
-    .filter-group select {
+    .filter-group select,
+    .filter-group input[type="date"] {
       width: 100%; padding: 9px 12px;
       border: 2px solid #b3d9ff; border-radius: 6px;
       font-size: 13px; font-weight: bold; background: #fff;
-      color: #1a237e; transition: border-color .3s, box-shadow .3s;
+      color: #0f2a3a; transition: border-color .3s, box-shadow .3s;
       cursor: pointer;
     }
-    .filter-group select:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 8px rgba(74,144,226,.3); }
+    .filter-group select:focus,
+    .filter-group input[type="date"]:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 8px rgba(74,144,226,.3); }
 
     .btn { padding: 9px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: all .3s; text-transform: uppercase; letter-spacing: .5px; }
-    .btn-blue { background: linear-gradient(135deg, #1a237e, #3949ab); color: #fff; }
-    .btn-blue:hover { background: linear-gradient(135deg, #283593, #1a237e); transform: translateY(-1px); }
+    .btn-blue { background: linear-gradient(135deg, #0f2a3a, #1c3d4d); color: #fff; }
+    .btn-blue:hover { background: linear-gradient(135deg, #0a1f2c, #0f2a3a); transform: translateY(-1px); }
     .btn-green { background: linear-gradient(135deg, #27ae60, #229954); color: #fff; }
     .btn-green:hover { background: linear-gradient(135deg, #229954, #1e8449); transform: translateY(-1px); }
     .btn-red { background: linear-gradient(135deg, #c0392b, #e74c3c); color: #fff; }
@@ -121,14 +145,14 @@
 
     /* ── Results Panel ── */
     .results-panel {
-      background: rgb(212,220,218);
+      background: #faf6ec;
       border-radius: 10px;
       padding: 18px;
       box-shadow: 0 4px 15px rgba(0,0,0,.1);
     }
     .results-title {
       font-size: 0.95em; font-weight: bold;
-      background: linear-gradient(135deg, #1a237e, #3949ab);
+      background: linear-gradient(135deg, #0f2a3a, #1c3d4d);
       color: #fff; padding: 7px 14px; border-radius: 6px;
       letter-spacing: 1px; text-transform: uppercase;
       margin-bottom: 16px;
@@ -154,18 +178,18 @@
     }
     .info-item { display: flex; flex-direction: column; gap: 3px; }
     .info-item .lbl { font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: .5px; }
-    .info-item .val { font-size: 13px; font-weight: bold; color: #1a237e; }
+    .info-item .val { font-size: 13px; font-weight: bold; color: #0f2a3a; }
 
     /* ── Table ── */
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; }
-    thead tr { background: linear-gradient(135deg, #1a237e, #3949ab); }
-    thead th { color: #FFD700; font-weight: bold; padding: 10px 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+    thead tr { background: linear-gradient(135deg, #0f2a3a, #1c3d4d); }
+    thead th { color: #e0a030; font-weight: bold; padding: 10px 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
     tbody tr { border-bottom: 1px solid #e0eaf5; transition: background .2s; }
     tbody tr:hover { background: #f0f8ff; }
     tbody tr:nth-child(even) { background: #f8fbff; }
     tbody tr:nth-child(even):hover { background: #eaf4fd; }
-    tbody td { padding: 9px 10px; color: #1a237e; vertical-align: top; }
+    tbody td { padding: 9px 10px; color: #0f2a3a; vertical-align: top; }
     .badge {
       display: inline-block; padding: 2px 8px;
       border-radius: 12px; font-size: 10px; font-weight: bold;
@@ -187,8 +211,8 @@
       cursor: pointer;
       transition: all .2s;
     }
-    .trainee-card:hover { border-color: #1a237e; box-shadow: 0 4px 15px rgba(26,35,126,.15); transform: translateY(-2px); }
-    .trainee-card .tc-name { font-size: 13px; font-weight: bold; color: #1a237e; margin-bottom: 6px; }
+    .trainee-card:hover { border-color: #0f2a3a; box-shadow: 0 4px 15px rgba(26,35,126,.15); transform: translateY(-2px); }
+    .trainee-card .tc-name { font-size: 13px; font-weight: bold; color: #0f2a3a; margin-bottom: 6px; }
     .trainee-card .tc-detail { font-size: 11px; color: #555; margin-bottom: 2px; }
     .trainee-card .tc-count { font-size: 10px; color: #27ae60; font-weight: bold; margin-top: 8px; }
 
@@ -200,7 +224,7 @@
     .empty-state p { font-size: 14px; }
 
     .loading {
-      text-align: center; padding: 32px; color: #1a237e; font-weight: bold;
+      text-align: center; padding: 32px; color: #0f2a3a; font-weight: bold;
     }
 
     /* ── Toast ── */
@@ -212,7 +236,7 @@
     }
     #toast.success { background: #27ae60; }
     #toast.error { background: #e74c3c; }
-    #toast.info { background: #1a237e; }
+    #toast.info { background: #0f2a3a; }
     @keyframes fadeIn { from { opacity: 0; bottom: 15px; } to { opacity: 1; bottom: 30px; } }
 
     .action-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
@@ -221,16 +245,20 @@
     .tab-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .tab {
       padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: bold;
-      cursor: pointer; border: 2px solid #b3d9ff; background: #fff; color: #1a237e;
+      cursor: pointer; border: 2px solid #b3d9ff; background: #fff; color: #0f2a3a;
       transition: all .2s; text-transform: uppercase; letter-spacing: .5px;
     }
-    .tab.active { background: linear-gradient(135deg, #1a237e, #3949ab); color: #FFD700; border-color: #1a237e; }
-    .tab:hover:not(.active) { border-color: #1a237e; }
+    .tab.active { background: linear-gradient(135deg, #0f2a3a, #1c3d4d); color: #e0a030; border-color: #0f2a3a; }
+    .tab:hover:not(.active) { border-color: #0f2a3a; }
 
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: repeat(2, 1fr); }
-      .filter-grid { grid-template-columns: 1fr; }
+      .filter-grid { grid-template-columns: 1fr 1fr; }
+      .filter-grid .btn { width: 100%; }
       .trainee-info { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .filter-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
       .stats-row { grid-template-columns: 1fr; }
@@ -243,11 +271,18 @@
   <!-- Header -->
   <div class="header">
     <div class="header-inner">
-      <div class="logo-circle">SECR<br>RPR<br>DIV</div>
       <div class="header-text">
-        <div class="title">📊 HANDLING DATA DASHBOARD</div>
+        <div class="eyebrow">HANDLING DATA</div>
+        <div class="title">HANDLING DATA DASHBOARD</div>
         <div class="sub">South East Central Railway</div>
-        <div class="sub2">Raipur Division — RRB ALP Monitoring</div>
+        <div class="sub2">Raipur Division</div>
+      </div>
+      <div class="live-clock">
+        <div class="live-dot"></div>
+        <div class="live-clock-text">
+          <div class="live-time" id="liveTime">--:--:--</div>
+          <div class="live-date" id="liveDate">-- --- ----</div>
+        </div>
       </div>
     </div>
   </div>
@@ -289,6 +324,14 @@
           <select id="filterTrainee" onchange="onTraineeChange()">
             <option value="">— All Trainees —</option>
           </select>
+        </div>
+        <div class="filter-group">
+          <label>From Date</label>
+          <input type="date" id="filterFromDate" onchange="onDateFilterChange()">
+        </div>
+        <div class="filter-group">
+          <label>To Date</label>
+          <input type="date" id="filterToDate" onchange="onDateFilterChange()">
         </div>
         <button class="btn btn-blue" onclick="clearFilters()">✕ Clear</button>
         <button class="btn btn-green" onclick="renderSummaryView()">📊 Generate Summary</button>
@@ -594,6 +637,7 @@ function renderDefault() {
   document.getElementById('summaryPdfRow').style.display = 'none';
   document.getElementById('resultsLabel').textContent = '📋 All Records Summary';
   document.getElementById('resultsCount').textContent = `${allRecords.length} entries`;
+  window._currentDateRange = null;
 
   // Group by trainee
   const byTrainee = {};
@@ -647,6 +691,10 @@ function onCLIChange() {
   const cli = document.getElementById('filterCLI').value;
   // Reset trainee filter when CLI changes
   document.getElementById('filterTrainee').value = '';
+
+  const fromVal = document.getElementById('filterFromDate').value;
+  const toVal = document.getElementById('filterToDate').value;
+  if (fromVal || toVal) { onDateFilterChange(); return; }
 
   if (!cli) { renderDefault(); return; }
 
@@ -789,9 +837,9 @@ function buildCLISummarySection(cli, byTrainee) {
           </thead>
           <tbody>${rows}</tbody>
           <tfoot>
-            <tr style="background:#eef3fb; border-top:2px solid #1a237e;">
-              <td colspan="6" style="text-align:right; font-weight:bold; color:#1a237e;">TOTAL KM</td>
-              <td style="font-weight:bold; color:#1a237e;">${Math.round(totalKm)}</td>
+            <tr style="background:#eef3fb; border-top:2px solid #0f2a3a;">
+              <td colspan="6" style="text-align:right; font-weight:bold; color:#0f2a3a;">TOTAL KM</td>
+              <td style="font-weight:bold; color:#0f2a3a;">${Math.round(totalKm)}</td>
             </tr>
           </tfoot>
         </table>
@@ -914,7 +962,7 @@ function generateSummaryPDF() {
 }
 
 function renderCLIEntries(records) {
-  document.getElementById('resultsContent').innerHTML = buildEntriesTable(records);
+  document.getElementById('resultsContent').innerHTML = buildEntriesTable(records, true);
 }
 
 function switchTab(tab) {
@@ -938,6 +986,9 @@ function switchTab(tab) {
 // ════════════════════════════════════════════════════════
 function onTraineeChange() {
   const trainee = document.getElementById('filterTrainee').value;
+  const fromVal = document.getElementById('filterFromDate').value;
+  const toVal = document.getElementById('filterToDate').value;
+  if (fromVal || toVal) { onDateFilterChange(); return; }
   if (!trainee) {
     const cli = document.getElementById('filterCLI').value;
     if (cli) onCLIChange(); else renderDefault();
@@ -949,6 +1000,116 @@ function onTraineeChange() {
 function selectTraineeDirect(name) {
   document.getElementById('filterTrainee').value = name;
   renderTraineeView(name);
+}
+
+// ════════════════════════════════════════════════════════
+//  DATE RANGE FILTER
+// ════════════════════════════════════════════════════════
+// Parses a record's date string (which may come through in several
+// formats depending on how the sheet stored it: ISO "2025-06-15",
+// "2025-06-15T00:00:00.000Z", "15/06/2025", "6/15/2025", etc.)
+// into a Date object we can compare. Returns null if unparseable.
+function parseRecordDate(str) {
+  if (!str) return null;
+  str = String(str).trim();
+
+  // ISO format: 2025-06-15 or 2025-06-15T...
+  let m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+
+  // dd/mm/yyyy or d/m/yyyy (also handles dd-mm-yyyy)
+  m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (m) {
+    const a = +m[1], b = +m[2], y = +m[3];
+    // If first part > 12 it must be the day; otherwise assume dd/mm/yyyy
+    // (this sheet is used with Indian date conventions elsewhere in the app)
+    if (a > 12) return new Date(y, b - 1, a);
+    return new Date(y, b - 1, a);
+  }
+
+  // Fallback to native parsing
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function onDateFilterChange() {
+  const fromVal = document.getElementById('filterFromDate').value; // yyyy-mm-dd
+  const toVal = document.getElementById('filterToDate').value;     // yyyy-mm-dd
+
+  if (!fromVal && !toVal) {
+    // No date range set — fall back to whatever CLI/Trainee filters say
+    const trainee = document.getElementById('filterTrainee').value;
+    const cli = document.getElementById('filterCLI').value;
+    if (trainee) renderTraineeView(trainee);
+    else if (cli) onCLIChange();
+    else renderDefault();
+    return;
+  }
+
+  const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+  const toDate = toVal ? new Date(toVal + 'T23:59:59') : null;
+
+  // Combine with any CLI / Trainee selection already made, so the date
+  // range narrows whatever is currently selected rather than replacing it.
+  const cli = document.getElementById('filterCLI').value;
+  const trainee = document.getElementById('filterTrainee').value;
+
+  let base = allRecords;
+  if (trainee) base = base.filter(r => r.traineeName === trainee);
+  else if (cli) base = base.filter(r => r.nominatedCLI === cli);
+
+  const filtered = base.filter(r => {
+    const d = parseRecordDate(r.date);
+    if (!d) return false;
+    if (fromDate && d < fromDate) return false;
+    if (toDate && d > toDate) return false;
+    return true;
+  });
+
+  renderDateFilteredView(filtered, { fromVal, toVal, cli, trainee });
+}
+
+function formatDateForLabel(val) {
+  if (!val) return '';
+  const [y, m, d] = val.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// Formats any record date (whatever format it came in from the sheet)
+// into a consistent dd/mm/yyyy string for display in the dashboard and PDF.
+function formatDisplayDate(str) {
+  if (!str) return '';
+  const d = parseRecordDate(str);
+  if (!d) return str; // fall back to raw value if unparseable
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+function renderDateFilteredView(records, ctx) {
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('summaryPdfRow').style.display = 'none';
+  document.getElementById('pdfRow').style.display = 'flex';
+
+  const rangeLabel = ctx.fromVal && ctx.toVal
+    ? `${formatDateForLabel(ctx.fromVal)} – ${formatDateForLabel(ctx.toVal)}`
+    : ctx.fromVal
+      ? `From ${formatDateForLabel(ctx.fromVal)}`
+      : `Up to ${formatDateForLabel(ctx.toVal)}`;
+
+  const scopeLabel = ctx.trainee ? ` · 👤 ${ctx.trainee}` : (ctx.cli ? ` · 🧑‍💼 ${ctx.cli}` : '');
+
+  document.getElementById('resultsLabel').textContent = `📅 Records: ${rangeLabel}${scopeLabel}`;
+
+  const km = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
+  document.getElementById('resultsCount').textContent = `${records.length} entries | ${Math.round(km)} KM`;
+
+  window._currentTrainee = ctx.trainee || 'all';
+  window._currentTraineeRecords = records;
+  window._currentDateRange = { fromVal: ctx.fromVal, toVal: ctx.toVal };
+
+  document.getElementById('resultsContent').innerHTML = buildEntriesTable(records, !ctx.trainee);
 }
 
 // ════════════════════════════════════════════════════════
@@ -969,6 +1130,7 @@ function renderTraineeView(trainee) {
 
   window._currentTrainee = trainee;
   window._currentTraineeRecords = records;
+  window._currentDateRange = null;
 
   const infoHtml = `
     <div class="trainee-info">
@@ -986,13 +1148,19 @@ function renderTraineeView(trainee) {
 // ════════════════════════════════════════════════════════
 //  BUILD ENTRIES TABLE HTML
 // ════════════════════════════════════════════════════════
-function buildEntriesTable(records) {
+function buildEntriesTable(records, includeTraineeCols) {
   if (!records.length) return '<div class="empty-state"><div class="icon">📭</div><p>No entries found.</p></div>';
 
-  const rows = records.map((r, i) => `
+  const rows = records.map((r, i) => {
+    const traineeCells = includeTraineeCols ? `
+      <td><strong>${r.traineeName || '—'}</strong></td>
+      <td>${r.hq || '—'}</td>
+      <td>${r.hrms || '—'}</td>
+      <td>${r.nominatedCLI || '—'}</td>` : '';
+    return `
     <tr>
       <td>${i + 1}</td>
-      <td>${r.date || '—'}</td>
+      <td>${formatDisplayDate(r.date) || '—'}</td>${traineeCells}
       <td>${r.trainNo || '—'}</td>
       <td>${r.locoNo || '—'}</td>
       <td>${r.fromStation || '—'}</td>
@@ -1004,10 +1172,19 @@ function buildEntriesTable(records) {
       <td style="max-width:180px;">${r.itemsDiscussed || '—'}</td>
       <td>${r.ccSmName || '—'}</td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   const totalKm = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
   const totalKmDisplay = Number.isInteger(totalKm) ? totalKm : totalKm.toFixed(1);
+
+  const traineeHeaders = includeTraineeCols ? `
+            <th>Trainee Name</th>
+            <th>HQ</th>
+            <th>HRMS ID</th>
+            <th>Group CLI Name</th>` : '';
+
+  const footColspan = includeTraineeCols ? 12 : 8;
 
   return `
     <div class="table-wrap">
@@ -1015,7 +1192,7 @@ function buildEntriesTable(records) {
         <thead>
           <tr>
             <th>#</th>
-            <th>Date</th>
+            <th>Date</th>${traineeHeaders}
             <th>Train No</th>
             <th>Loco No</th>
             <th>From</th>
@@ -1030,9 +1207,9 @@ function buildEntriesTable(records) {
         </thead>
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr style="background:#eef3fb; border-top:2px solid #1a237e;">
-            <td colspan="8" style="text-align:right; font-weight:bold; color:#1a237e;">TOTAL KM</td>
-            <td style="font-weight:bold; color:#1a237e;">${totalKmDisplay}</td>
+          <tr style="background:#eef3fb; border-top:2px solid #0f2a3a;">
+            <td colspan="${footColspan}" style="text-align:right; font-weight:bold; color:#0f2a3a;">TOTAL KM</td>
+            <td style="font-weight:bold; color:#0f2a3a;">${totalKmDisplay}</td>
             <td colspan="3"></td>
           </tr>
         </tfoot>
@@ -1047,6 +1224,8 @@ function buildEntriesTable(records) {
 function clearFilters() {
   document.getElementById('filterCLI').value = '';
   document.getElementById('filterTrainee').value = '';
+  document.getElementById('filterFromDate').value = '';
+  document.getElementById('filterToDate').value = '';
   // Reset trainee dropdown to all
   const tSel = document.getElementById('filterTrainee');
   const traineeSet = new Set(allRecords.map(r => r.traineeName).filter(Boolean));
@@ -1091,6 +1270,19 @@ function generatePDF() {
 
     let y = 28;
 
+    // ── Report Period Heading ──
+    const dr = window._currentDateRange;
+    if (dr && (dr.fromVal || dr.toVal)) {
+      const periodLabel = `REPORT FROM DATE: ${dr.fromVal ? formatDateForLabel(dr.fromVal) : '—'}   TO REPORT TO DATE: ${dr.toVal ? formatDateForLabel(dr.toVal) : '—'}`;
+      doc.setFillColor(224, 160, 48);
+      doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+      doc.setTextColor(26, 35, 126);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(periodLabel, pageW / 2, y + 5, { align: 'center' });
+      y += 11;
+    }
+
     // ── Trainee Details ──
     if (trainee !== 'all') {
       doc.setFillColor(57, 73, 171);
@@ -1131,18 +1323,29 @@ function generatePDF() {
     doc.text('HANDLING DETAILS', pageW / 2, y + 5, { align: 'center' });
     y += 9;
 
-    const tableHead = [['#', 'Date', 'Train No', 'Loco No', 'From', 'Dep', 'To', 'Arr', 'KM', 'LP/ALP Name & Sign', 'Items Discussed', 'CC/SM']];
-    const tableBody = records.map((r, i) => [
-      i + 1, r.date, r.trainNo, r.locoNo, r.fromStation, r.depTime,
-      r.toStation, r.arrTime, r.footplateKm, r.lpAlpName, r.itemsDiscussed, r.ccSmName
-    ]);
+    const showTraineeCols = trainee === 'all';
+    const tableHead = showTraineeCols
+      ? [['#', 'Date', 'Trainee Name', 'HQ', 'HRMS ID', 'Group CLI Name', 'Train No', 'Loco No', 'From', 'Dep', 'To', 'Arr', 'KM', 'LP/ALP Name & Sign', 'Items Discussed', 'CC/SM']]
+      : [['#', 'Date', 'Train No', 'Loco No', 'From', 'Dep', 'To', 'Arr', 'KM', 'LP/ALP Name & Sign', 'Items Discussed', 'CC/SM']];
+    const tableBody = records.map((r, i) => showTraineeCols
+      ? [i + 1, formatDisplayDate(r.date), r.traineeName, r.hq, r.hrms, r.nominatedCLI, r.trainNo, r.locoNo, r.fromStation, r.depTime,
+         r.toStation, r.arrTime, r.footplateKm, r.lpAlpName, r.itemsDiscussed, r.ccSmName]
+      : [i + 1, formatDisplayDate(r.date), r.trainNo, r.locoNo, r.fromStation, r.depTime,
+         r.toStation, r.arrTime, r.footplateKm, r.lpAlpName, r.itemsDiscussed, r.ccSmName]
+    );
     const totalKmPdf = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
     const totalKmPdfDisplay = Number.isInteger(totalKmPdf) ? totalKmPdf : totalKmPdf.toFixed(1);
-    const tableFoot = [[
-      '', '', '', '', '', '', '',
-      { content: 'TOTAL KM', styles: { halign: 'right' } },
-      totalKmPdfDisplay, '', '', ''
-    ]];
+    const tableFoot = showTraineeCols
+      ? [[
+          '', '', '', '', '', '', '', '', '', '', '',
+          { content: 'TOTAL KM', styles: { halign: 'right' } },
+          totalKmPdfDisplay, '', '', ''
+        ]]
+      : [[
+          '', '', '', '', '', '', '',
+          { content: 'TOTAL KM', styles: { halign: 'right' } },
+          totalKmPdfDisplay, '', '', ''
+        ]];
 
     doc.autoTable({
       startY: y,
@@ -1154,7 +1357,24 @@ function generatePDF() {
       headStyles: { fillColor: [26, 35, 126], textColor: [255, 215, 0], fontStyle: 'bold', halign: 'center' },
       footStyles: { fillColor: [224, 232, 247], textColor: [26, 35, 126], fontStyle: 'bold' },
       alternateRowStyles: { fillColor: [240, 248, 255] },
-      columnStyles: {
+      columnStyles: showTraineeCols ? {
+        0: { cellWidth: 6, halign: 'center' },
+        1: { cellWidth: 16 },
+        2: { cellWidth: 26 },
+        3: { cellWidth: 12 },
+        4: { cellWidth: 16 },
+        5: { cellWidth: 26 },
+        6: { cellWidth: 14 },
+        7: { cellWidth: 14 },
+        8: { cellWidth: 16 },
+        9: { cellWidth: 11 },
+        10: { cellWidth: 16 },
+        11: { cellWidth: 11 },
+        12: { cellWidth: 10 },
+        13: { cellWidth: 30 },
+        14: { cellWidth: 40 },
+        15: { cellWidth: 22 },
+      } : {
         0: { cellWidth: 6, halign: 'center' },
         1: { cellWidth: 18 },
         2: { cellWidth: 16 },
@@ -1205,9 +1425,28 @@ function showToast(msg, type) {
 }
 
 // ════════════════════════════════════════════════════════
+//  LIVE CLOCK
+// ════════════════════════════════════════════════════════
+function updateLiveClock() {
+  const now = new Date();
+  const timeEl = document.getElementById('liveTime');
+  const dateEl = document.getElementById('liveDate');
+  if (timeEl) {
+    timeEl.textContent = now.toLocaleTimeString('en-IN', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  if (dateEl) {
+    dateEl.textContent = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+}
+
+// ════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', loadData);
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
+});
 </script>
 </body>
 </html>
