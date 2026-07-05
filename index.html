@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,7 +115,7 @@
     }
     .filter-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr auto auto;
+      grid-template-columns: repeat(6, 1fr) auto auto;
       gap: 14px;
       align-items: end;
     }
@@ -251,6 +252,9 @@
     .tab.active { background: linear-gradient(135deg, #0f2a3a, #1c3d4d); color: #e0a030; border-color: #0f2a3a; }
     .tab:hover:not(.active) { border-color: #0f2a3a; }
 
+    @media (max-width: 992px) {
+      .filter-grid { grid-template-columns: 1fr 1fr 1fr; }
+    }
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .filter-grid { grid-template-columns: 1fr 1fr; }
@@ -323,6 +327,18 @@
           <label>Name of Trainee</label>
           <select id="filterTrainee" onchange="onTraineeChange()">
             <option value="">— All Trainees —</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>From Stn</label>
+          <select id="filterFromStation" onchange="onStationFilterChange()">
+            <option value="">— All From Stations —</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>To Stn</label>
+          <select id="filterToStation" onchange="onStationFilterChange()">
+            <option value="">— All To Stations —</option>
           </select>
         </div>
         <div class="filter-group">
@@ -625,6 +641,26 @@ function buildUI() {
     tSel.appendChild(o);
   });
 
+  // Populate From Stn / To Stn dropdowns
+  const fromStationSet = new Set(allRecords.map(r => r.fromStation).filter(Boolean));
+  const toStationSet = new Set(allRecords.map(r => r.toStation).filter(Boolean));
+
+  const fromStSel = document.getElementById('filterFromStation');
+  fromStSel.innerHTML = '<option value="">— All From Stations —</option>';
+  [...fromStationSet].sort().forEach(s => {
+    const o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    fromStSel.appendChild(o);
+  });
+
+  const toStSel = document.getElementById('filterToStation');
+  toStSel.innerHTML = '<option value="">— All To Stations —</option>';
+  [...toStationSet].sort().forEach(s => {
+    const o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    toStSel.appendChild(o);
+  });
+
   renderDefault();
 }
 
@@ -692,15 +728,10 @@ function onCLIChange() {
   // Reset trainee filter when CLI changes
   document.getElementById('filterTrainee').value = '';
 
-  const fromVal = document.getElementById('filterFromDate').value;
-  const toVal = document.getElementById('filterToDate').value;
-  if (fromVal || toVal) { onDateFilterChange(); return; }
-
-  if (!cli) { renderDefault(); return; }
-
-  const records = allRecords.filter(r => r.nominatedCLI === cli);
-  // Update trainee dropdown to only show trainees for this CLI
-  const traineeSet = new Set(records.map(r => r.traineeName).filter(Boolean));
+  // Rebuild trainee dropdown to only show trainees for this CLI
+  // (or everyone, if CLI filter was cleared)
+  const scoped = cli ? allRecords.filter(r => r.nominatedCLI === cli) : allRecords;
+  const traineeSet = new Set(scoped.map(r => r.traineeName).filter(Boolean));
   const tSel = document.getElementById('filterTrainee');
   tSel.innerHTML = '<option value="">— All Trainees —</option>';
   [...traineeSet].sort().forEach(n => {
@@ -709,7 +740,79 @@ function onCLIChange() {
     tSel.appendChild(o);
   });
 
-  renderCLIView(cli, records);
+  applyFilters();
+}
+
+// ════════════════════════════════════════════════════════
+//  ON STATION FILTER CHANGE (From Stn / To Stn)
+// ════════════════════════════════════════════════════════
+function onStationFilterChange() {
+  applyFilters();
+}
+
+// ════════════════════════════════════════════════════════
+//  UNIFIED FILTER ENGINE
+//  Reads every filter control (CLI, Trainee, From Stn, To Stn,
+//  From Date, To Date) and renders the view that matches
+//  whichever combination is currently selected.
+// ════════════════════════════════════════════════════════
+function getFilterValues() {
+  return {
+    cli:         document.getElementById('filterCLI').value,
+    trainee:     document.getElementById('filterTrainee').value,
+    fromStation: document.getElementById('filterFromStation').value,
+    toStation:   document.getElementById('filterToStation').value,
+    fromVal:     document.getElementById('filterFromDate').value,
+    toVal:       document.getElementById('filterToDate').value,
+  };
+}
+
+function applyFilters() {
+  const f = getFilterValues();
+  const hasStation = !!(f.fromStation || f.toStation);
+  const hasDate = !!(f.fromVal || f.toVal);
+
+  // Nothing selected at all — default grouped-by-trainee summary
+  if (!f.cli && !f.trainee && !hasStation && !hasDate) {
+    renderDefault();
+    return;
+  }
+
+  // Only a CLI selected — keep the original card-based CLI view
+  if (f.cli && !f.trainee && !hasStation && !hasDate) {
+    const records = allRecords.filter(r => r.nominatedCLI === f.cli);
+    renderCLIView(f.cli, records);
+    return;
+  }
+
+  // Only a Trainee selected — keep the original trainee detail view
+  if (f.trainee && !hasStation && !hasDate) {
+    renderTraineeView(f.trainee);
+    return;
+  }
+
+  // Any other combination (station and/or date, optionally narrowed
+  // further by CLI/Trainee) — build a flat, fully-filtered entries table
+  let records = allRecords;
+  if (f.trainee) records = records.filter(r => r.traineeName === f.trainee);
+  else if (f.cli) records = records.filter(r => r.nominatedCLI === f.cli);
+
+  if (f.fromStation) records = records.filter(r => r.fromStation === f.fromStation);
+  if (f.toStation) records = records.filter(r => r.toStation === f.toStation);
+
+  if (hasDate) {
+    const fromDate = f.fromVal ? new Date(f.fromVal + 'T00:00:00') : null;
+    const toDate = f.toVal ? new Date(f.toVal + 'T23:59:59') : null;
+    records = records.filter(r => {
+      const d = parseRecordDate(r.date);
+      if (!d) return false;
+      if (fromDate && d < fromDate) return false;
+      if (toDate && d > toDate) return false;
+      return true;
+    });
+  }
+
+  renderFilteredView(records, f);
 }
 
 // ════════════════════════════════════════════════════════
@@ -985,21 +1088,12 @@ function switchTab(tab) {
 //  ON TRAINEE CHANGE
 // ════════════════════════════════════════════════════════
 function onTraineeChange() {
-  const trainee = document.getElementById('filterTrainee').value;
-  const fromVal = document.getElementById('filterFromDate').value;
-  const toVal = document.getElementById('filterToDate').value;
-  if (fromVal || toVal) { onDateFilterChange(); return; }
-  if (!trainee) {
-    const cli = document.getElementById('filterCLI').value;
-    if (cli) onCLIChange(); else renderDefault();
-    return;
-  }
-  renderTraineeView(trainee);
+  applyFilters();
 }
 
 function selectTraineeDirect(name) {
   document.getElementById('filterTrainee').value = name;
-  renderTraineeView(name);
+  applyFilters();
 }
 
 // ════════════════════════════════════════════════════════
@@ -1033,40 +1127,7 @@ function parseRecordDate(str) {
 }
 
 function onDateFilterChange() {
-  const fromVal = document.getElementById('filterFromDate').value; // yyyy-mm-dd
-  const toVal = document.getElementById('filterToDate').value;     // yyyy-mm-dd
-
-  if (!fromVal && !toVal) {
-    // No date range set — fall back to whatever CLI/Trainee filters say
-    const trainee = document.getElementById('filterTrainee').value;
-    const cli = document.getElementById('filterCLI').value;
-    if (trainee) renderTraineeView(trainee);
-    else if (cli) onCLIChange();
-    else renderDefault();
-    return;
-  }
-
-  const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
-  const toDate = toVal ? new Date(toVal + 'T23:59:59') : null;
-
-  // Combine with any CLI / Trainee selection already made, so the date
-  // range narrows whatever is currently selected rather than replacing it.
-  const cli = document.getElementById('filterCLI').value;
-  const trainee = document.getElementById('filterTrainee').value;
-
-  let base = allRecords;
-  if (trainee) base = base.filter(r => r.traineeName === trainee);
-  else if (cli) base = base.filter(r => r.nominatedCLI === cli);
-
-  const filtered = base.filter(r => {
-    const d = parseRecordDate(r.date);
-    if (!d) return false;
-    if (fromDate && d < fromDate) return false;
-    if (toDate && d > toDate) return false;
-    return true;
-  });
-
-  renderDateFilteredView(filtered, { fromVal, toVal, cli, trainee });
+  applyFilters();
 }
 
 function formatDateForLabel(val) {
@@ -1087,29 +1148,51 @@ function formatDisplayDate(str) {
   return `${dd}/${mm}/${yyyy}`;
 }
 
-function renderDateFilteredView(records, ctx) {
+function renderFilteredView(records, f) {
   document.getElementById('tabBar').style.display = 'none';
   document.getElementById('summaryPdfRow').style.display = 'none';
   document.getElementById('pdfRow').style.display = 'flex';
 
-  const rangeLabel = ctx.fromVal && ctx.toVal
-    ? `${formatDateForLabel(ctx.fromVal)} – ${formatDateForLabel(ctx.toVal)}`
-    : ctx.fromVal
-      ? `From ${formatDateForLabel(ctx.fromVal)}`
-      : `Up to ${formatDateForLabel(ctx.toVal)}`;
+  const labelParts = [];
 
-  const scopeLabel = ctx.trainee ? ` · 👤 ${ctx.trainee}` : (ctx.cli ? ` · 🧑‍💼 ${ctx.cli}` : '');
+  if (f.fromVal || f.toVal) {
+    labelParts.push(
+      f.fromVal && f.toVal
+        ? `📅 ${formatDateForLabel(f.fromVal)} – ${formatDateForLabel(f.toVal)}`
+        : f.fromVal
+          ? `📅 From ${formatDateForLabel(f.fromVal)}`
+          : `📅 Up to ${formatDateForLabel(f.toVal)}`
+    );
+  }
 
-  document.getElementById('resultsLabel').textContent = `📅 Records: ${rangeLabel}${scopeLabel}`;
+  if (f.fromStation || f.toStation) {
+    labelParts.push(
+      f.fromStation && f.toStation
+        ? `🚉 ${f.fromStation} → ${f.toStation}`
+        : f.fromStation
+          ? `🚉 From ${f.fromStation}`
+          : `🚉 To ${f.toStation}`
+    );
+  }
+
+  if (f.trainee) labelParts.push(`👤 ${f.trainee}`);
+  else if (f.cli) labelParts.push(`🧑‍💼 ${f.cli}`);
+
+  document.getElementById('resultsLabel').textContent = labelParts.length
+    ? `Records: ${labelParts.join(' · ')}`
+    : '📋 Filtered Records';
 
   const km = records.reduce((s, r) => s + (parseFloat(r.footplateKm) || 0), 0);
   document.getElementById('resultsCount').textContent = `${records.length} entries | ${Math.round(km)} KM`;
 
-  window._currentTrainee = ctx.trainee || 'all';
+  window._currentTrainee = f.trainee || 'all';
   window._currentTraineeRecords = records;
-  window._currentDateRange = { fromVal: ctx.fromVal, toVal: ctx.toVal };
+  window._currentDateRange = {
+    fromVal: f.fromVal, toVal: f.toVal,
+    fromStation: f.fromStation, toStation: f.toStation,
+  };
 
-  document.getElementById('resultsContent').innerHTML = buildEntriesTable(records, !ctx.trainee);
+  document.getElementById('resultsContent').innerHTML = buildEntriesTable(records, !f.trainee);
 }
 
 // ════════════════════════════════════════════════════════
@@ -1224,6 +1307,8 @@ function buildEntriesTable(records, includeTraineeCols) {
 function clearFilters() {
   document.getElementById('filterCLI').value = '';
   document.getElementById('filterTrainee').value = '';
+  document.getElementById('filterFromStation').value = '';
+  document.getElementById('filterToStation').value = '';
   document.getElementById('filterFromDate').value = '';
   document.getElementById('filterToDate').value = '';
   // Reset trainee dropdown to all
@@ -1272,8 +1357,15 @@ function generatePDF() {
 
     // ── Report Period Heading ──
     const dr = window._currentDateRange;
-    if (dr && (dr.fromVal || dr.toVal)) {
-      const periodLabel = `REPORT FROM DATE: ${dr.fromVal ? formatDateForLabel(dr.fromVal) : '—'}   TO REPORT TO DATE: ${dr.toVal ? formatDateForLabel(dr.toVal) : '—'}`;
+    if (dr && (dr.fromVal || dr.toVal || dr.fromStation || dr.toStation)) {
+      const labelBits = [];
+      if (dr.fromVal || dr.toVal) {
+        labelBits.push(`REPORT FROM DATE: ${dr.fromVal ? formatDateForLabel(dr.fromVal) : '—'}   TO REPORT TO DATE: ${dr.toVal ? formatDateForLabel(dr.toVal) : '—'}`);
+      }
+      if (dr.fromStation || dr.toStation) {
+        labelBits.push(`STATION: ${dr.fromStation || '—'} → ${dr.toStation || '—'}`);
+      }
+      const periodLabel = labelBits.join('   |   ');
       doc.setFillColor(224, 160, 48);
       doc.rect(margin, y, pageW - margin * 2, 7, 'F');
       doc.setTextColor(26, 35, 126);
