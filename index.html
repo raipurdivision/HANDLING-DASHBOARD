@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -509,9 +510,9 @@ async function loadData() {
         date:           r[7]  || '',
         trainNo:        r[8]  || '',
         locoNo:         r[9]  || '',
-        fromStation:    r[10] || '',
+        fromStation:    (r[10] || '').trim().toUpperCase(),
         depTime:        r[11] || '',
-        toStation:      r[12] || '',
+        toStation:      (r[12] || '').trim().toUpperCase(),
         arrTime:        r[13] || '',
         footplateKm:    r[14] || '',
         lpAlpName:      r[15] || '',
@@ -591,9 +592,9 @@ function loadDemoData() {
         date: `2025-06-${String(e + 1).padStart(2,'0')}`,
         trainNo: trains[Math.floor(Math.random() * trains.length)],
         locoNo: locos[Math.floor(Math.random() * locos.length)],
-        fromStation: from,
+        fromStation: from.toUpperCase(),
         depTime: `0${8+e}:30`,
-        toStation: to,
+        toStation: to.toUpperCase(),
         arrTime: `${10+e}:45`,
         footplateKm: String(80 + Math.floor(Math.random() * 200)),
         lpAlpName: `LP SHARMA / ALP GUPTA`,
